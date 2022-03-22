@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useState, useRef, useEffect} from 'react';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const videoRef = useRef(null);
+  const photoRef = useRef(null);
+
+  const [hasPhoto, setHasPhoto] = useState(false);
+
+  function getVideo() {
+    navigator.mediaDevices.getUserMedia({ video: {height: 1920, width: 1080} })
+    .then(stream => {
+      let vid = videoRef.current
+      vid.srcObject = stream;
+      vid.play()
+    })
+    .catch(err => {
+      console.log(err); 
+    })
+  }
+
+  useEffect(() => {
+    getVideo();
+  }, [videoRef])
+
+    return (
+      <div className="App" >
+        <div className="camera">
+          <video ref={videoRef} ></video>
+          <button>Click</button>
+        </div>
+        <div className={"result" + (hasPhoto ? 'has' : '')} >
+          <canvas ref={photoRef} ></canvas>
+          <button>Close</button>
+        </div>
+      </div>
+    )
 }
 
 export default App;
