@@ -9,6 +9,8 @@ import Button from '@mui/material/Button';
 
 const WebcamComponent = () => <Webcam />;
 
+const SERVER_URL = 'http://127.0.0.1:8000/index/';
+
 const videoConstraints = {
   width: 1920,
   height: 1080,
@@ -18,7 +20,7 @@ const videoConstraints = {
 
 function App() {
   const [image,setImage]=useState('');
-  const [fimage, setFimage] = useState('');
+  const [fimage, setFimage] = useState([]);
   const [open, setOpen] = useState(false);
   const [crop, setCrop] = useState(null);
   const [imagearr, setImagearr] = useState([]);
@@ -37,10 +39,18 @@ function App() {
     [webcamRef]
   );
 
-  async function sendImg(img) {
-    if(img === '') return ;
-    await axios.post('http://localhost:4000/index', {img : img.substr(23)})
-    .then(async(res) => {console.log(res.data); await setFimage(res.data)})
+  function sendImg(idx) {
+    if(imagearr === []) return ;
+    imagearr.forEach(async (e) => {
+      let s = e.slice(23);
+      console.log(s);
+      await axios.post(SERVER_URL, {img: s}).then((res) => {
+        console.log(res.data) //23 char
+        let temp = imagearr;
+        temp[idx] = 'data:image/jpeg;base64,' + res.data;
+        setImagearr([...temp]);
+      })
+    })
   }
 
   function saveImg(img) {
@@ -94,6 +104,22 @@ function App() {
     })
     )
   }
+
+  function pageUp(idx) {
+    let temp = imagearr;
+    let t = temp[idx];
+    temp[idx] = temp[idx-1];
+    temp[idx-1] = t;
+    setImagearr([...temp]);
+  }
+
+  function pageDown(idx) {
+    let temp = imagearr;
+    let t = temp[idx];
+    temp[idx] = temp[idx+1];
+    temp[idx+1] = t;
+    setImagearr([...temp]);
+  }
  
   const action = (
     <React.Fragment>
@@ -127,18 +153,6 @@ function App() {
       Capture</button>
       <div >
         {
-          fimage !== '' ?
-          <>
-          <img src={`data:image/png;base64,${fimage}`} />
-          <div className='buttons' >
-          <button className="b1" onClick={() => saveImg(fimage)} >Accept</button>
-          <button className="b1" onClick={() => setFimage('')} style={{backgroundColor: 'red'}} >Rescan</button>
-          </div>
-          </>
-          : 
-          <></>
-        }
-        {
           image !== '' ?
           <>
           <img src={image} />
@@ -165,6 +179,10 @@ function App() {
               <input onChange={(e) => {p = e.target.value}} ></input>
               <button onClick={() => pageChange(p, idx+1)} >Change Page</button>
               <button onClick={() => pageDelete(data)} >Delete Page</button>
+              {idx !== 0 && <button onClick={() => pageUp(idx)} >Page Up</button>}
+              {idx !== imagearr.length-1 && <button onClick={() => pageDown(idx)} >Page Down</button>}
+              <button className='b1' onClick={()=>sendImg(idx)} >
+              Send</button>
               </div>
             )
           })

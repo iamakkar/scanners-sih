@@ -1,7 +1,7 @@
 {
+  "homepage": "https://iamakkar.github.io/scanners-sih",
   "name": "scanners",
   "version": "0.1.0",
-  "homepage": "https://iamakkar.github.io/scanners-sih",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.8.2",
