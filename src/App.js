@@ -141,7 +141,7 @@ function App() {
 
     return (
       <div className="App" style={{alignItems:'center'}}>
-        <div style={{display:'flex',flexDirection:'column', width:'50%',margin:'auto',border: '1px solid black', borderRadius: '0.6%'}}>
+        <div style={{display:'flex',flexDirection:'column', width:'90%', height:'80%',margin:'auto',border: '1px solid black', borderRadius: '0.6%'}}>
           <Webcam 
           audio={false}
           // height={1080}
