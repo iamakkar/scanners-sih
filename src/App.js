@@ -11,7 +11,7 @@ import {  faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-ic
 
 const WebcamComponent = () => <Webcam />;
 
-const SERVER_URL = 'http://127.0.0.1:8000/index/';
+const SERVER_URL = 'https://scanner-backend.herokuapp.com/index/';
 
 const videoConstraints = {
   width: 1920,
