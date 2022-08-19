@@ -6,6 +6,8 @@ import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 // import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/material/Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {  faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const WebcamComponent = () => <Webcam />;
 
@@ -138,20 +140,22 @@ function App() {
   );
 
     return (
-      <div className="App" >
-        <Webcam 
-        audio={false}
-        height={1080}
-        ref={webcamRef}
-        screenshotFormat="image/jpeg"
-        width={1920}
-        videoConstraints={videoConstraints}
-        className="webcam"
-        screenshotQuality={1}
-        />
-        <button className='b1' onClick={(e)=>{e.preventDefault();capture();}} >
-      Capture</button>
-      <div >
+      <div className="App" style={{alignItems:'center'}}>
+        <div style={{display:'flex',flexDirection:'column', width:'50%',margin:'auto',border: '1px solid black', borderRadius: '0.6%'}}>
+          <Webcam 
+          audio={false}
+          // height={1080}
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          // width={1920}
+          videoConstraints={videoConstraints}
+          className="webcam"
+          screenshotQuality={1}
+          />
+          <button className='b1' onClick={(e)=>{e.preventDefault();capture();}} >
+        Capture</button>
+        </div>
+      <div style={{display:'flex', flexFlow:'row wrap', justifyContent:'center'}}>
         {
           image !== '' ?
           <>
@@ -166,21 +170,27 @@ function App() {
             let p = idx+1;
             return (
               <div style={{
-              borderWidth: 5,
-              padding: 20,
-              borderColor: 'black',
+              // borderWidth: 5,
+              // padding: 20,
+              // borderColor: 'black',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              alignItems: 'center'
+              alignItems: 'center',
+              border: '1px solid black',
+              borderRadius: '0.6%',
+              width: '40%',
+              margin: '2%'
               }} >
-              <img src={data} />
-              <p style={{fontWeight: 'bold'}} >{idx+1}</p>
-              <input onChange={(e) => {p = e.target.value}} ></input>
-              <button onClick={() => pageChange(p, idx+1)} >Change Page</button>
-              <button onClick={() => pageDelete(data)} >Delete Page</button>
-              {idx !== 0 && <button onClick={() => pageUp(idx)} >Page Up</button>}
-              {idx !== imagearr.length-1 && <button onClick={() => pageDown(idx)} >Page Down</button>}
+              <img src={data} style={{width:'-webkit-fill-available'}} />
+              <p style={{fontWeight: 'bold', margin: '10px 20px', fontSize: '20px'}} >{idx+1}</p>
+              {/* <input onChange={(e) => {p = e.target.value}} ></input>
+              <button onClick={() => pageChange(p, idx+1)} >Change Page</button> */}
+              <div style={{display: 'flex', flexDirection: 'row'}}>
+                <FontAwesomeIcon style={{margin: '10px 20px', fontSize: '20px'}} icon={faTrash} onClick={() => pageDelete(data)} />
+                {idx !== 0 && <FontAwesomeIcon style={{margin: '10px 20px', fontSize: '20px'}} icon={faArrowUp} onClick={() => pageUp(idx)} />}
+                {idx !== imagearr.length-1 && <FontAwesomeIcon style={{margin: '10px 20px', fontSize: '20px'}} icon={faArrowDown} onClick={() => pageDown(idx)} />}
+              </div>
               <button className='b1' onClick={()=>sendImg(idx)} >
               Send</button>
               </div>

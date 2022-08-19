@@ -12,6 +12,7 @@ import UploadButton from "@rpldy/upload-button";
 import UploadPreview, { PREVIEW_TYPES } from "@rpldy/upload-preview";
 import cropImage from "./cropImage";
 import "./styles.css";
+import "./node_modules/font-awesome/css/font-awesome.min.css";
 
 const mockSenderEnhancer = getMockSenderEnhancer({ delay: 1500 });
 

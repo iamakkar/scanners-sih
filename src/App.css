@@ -1,26 +1,26 @@
-.App {
+/* .App {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding-top: 5%;
-  /* height: 100vh; */
-}
+  height: 100vh;
+} */
 
-.webcam {
+/* .webcam {
   height: 80vh;
   width: 90vw;
   padding: 0;
-}
+} */
 
-.camera {
+/* .camera {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-top: 5%;
   height: 100vh;
-}
+} */
 
 .buttons {
   display: flex;
@@ -45,7 +45,7 @@
   margin: 5px;
 }
 
-.resulthas {
+/* .resulthas {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -57,4 +57,4 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
+} */
