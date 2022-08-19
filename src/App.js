@@ -11,13 +11,13 @@ import {  faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-ic
 
 const WebcamComponent = () => <Webcam />;
 
-const SERVER_URL = 'https://scanner-backend.herokuapp.com/index/';
+const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
 
 const videoConstraints = {
   width: 1920,
   height: 1080,
-  facingMode: { exact: "environment" },
-  // facingMode: 'user',
+  // facingMode: { exact: "environment" },
+  facingMode: 'user',
 };
 
 function App() {
