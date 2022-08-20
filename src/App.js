@@ -7,7 +7,13 @@ import IconButton from '@mui/material/IconButton';
 // import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/material/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {  faArrowUp, faArrowDown, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {  faArrowUp, faArrowDown, faTrash, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
+
+import loadingGif from "./giphy.gif";
+
+import {storage} from './Config/Firebase';
+import { ref, uploadBytes  } from "firebase/storage";
+
 
 const WebcamComponent = () => <Webcam />;
 
@@ -16,8 +22,8 @@ const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
 const videoConstraints = {
   width: 1920,
   height: 1080,
-  // facingMode: { exact: "environment" },
-  facingMode: 'user',
+  facingMode: { exact: "environment" },
+  // facingMode: 'user',
 };
 
 function App() {
@@ -26,7 +32,9 @@ function App() {
   const [open, setOpen] = useState(false);
   const [crop, setCrop] = useState(null);
   const [imagearr, setImagearr] = useState([]);
+  const [loading, setLoading] = useState([]);
   const [is_sending, set_is_sending] = useState(false);
+  const [folderName, setFolderName] = useState();
   const [isPreview, setIsPreview] = useState({
     is: false,
     img: "",
@@ -38,6 +46,7 @@ function App() {
     () => {
       const imageSrc = webcamRef.current.getScreenshot();
       setImagearr(img => [...img, imageSrc]);
+      setLoading(cur => [...cur, false]);
       // setImage(imageSrc);
       // sendImg(imageSrc);
     },
@@ -45,18 +54,40 @@ function App() {
     [webcamRef]
   );
 
+  async function uplaodImg(){
+    imagearr.map(async(data,idx) => {
+      const storageRef = ref(storage, `${folderName}/${idx+1}`);
+      const base64Response = await fetch(imagearr[idx]);
+      const blob = await base64Response.blob();
+
+      uploadBytes(storageRef, blob).then((snapshot) => {
+        console.log('Uploaded a blob or file!');
+      });
+    })
+  }
+
   async function sendImg(idx) {
     if(imagearr === []) return ;
     set_is_sending(true);
     let s = imagearr[idx].slice(23);
     console.log(s);
+    let temp_load=loading;
+    temp_load[idx]=true;
+    setLoading([...temp_load]);
     await axios.post(SERVER_URL, {img: s}).then((res) => {
+      setTimeout(() => {  }, 5000);
       console.log(res.data) //23 char
       let temp = imagearr;
       temp[idx] = 'data:image/jpeg;base64,' + res.data;
       setImagearr([...temp]);
       set_is_sending(false);
+    }).catch(error => {
+      console.log(error);
     })
+    temp_load=loading;
+    temp_load[idx]=false;
+    setLoading([...temp_load]);
+    console.log("done");
   }
 
   function saveImg(img) {
@@ -199,7 +230,10 @@ function App() {
               width: '40%',
               margin: '2%'
               }} >
-              <img src={data} style={{width:'-webkit-fill-available'}} alt="err" onClick={() => setIsPreview({is: true, img: data})} />
+              {!loading[idx] ? 
+                <img src={data} style={{width:'-webkit-fill-available'}} alt="err" onClick={() => setIsPreview({is: true, img: data})} /> :
+                <img src={loadingGif} />
+              }
               <p style={{fontWeight: 'bold', margin: '10px 20px', fontSize: '20px'}} >{idx+1}</p>
               {/* <input onChange={(e) => {p = e.target.value}} ></input>
               <button onClick={() => pageChange(p, idx+1)} >Change Page</button> */}
@@ -208,8 +242,7 @@ function App() {
                 {idx !== 0 && <FontAwesomeIcon style={{margin: '10px 20px', fontSize: '20px'}} icon={faArrowUp} onClick={() => pageUp(idx)} />}
                 {idx !== imagearr.length-1 && <FontAwesomeIcon style={{margin: '10px 20px', fontSize: '20px'}} icon={faArrowDown} onClick={() => pageDown(idx)} />}
               </div>
-              <button className='b1' onClick={()=>sendImg(idx)} >
-              Send</button>
+              <button className='b1' onClick={()=>sendImg(idx)} ><FontAwesomeIcon style={{margin: '4px 5px', fontSize: '30px'}} icon={faMagicWandSparkles} /></button>
               </div>
             )
           })
@@ -222,6 +255,10 @@ function App() {
         action={action}
       />
       </div>
+      <div style={{display:'flex', flexDirection:'column', width:'30%', margin:'auto'}}>
+        <input placeholder='Enter the folder name' style={{fontSize:'larger'}} onChange={e => setFolderName(e.target.value)} ></input>
+        <button className='b1' onClick={()=>uplaodImg()} >Upload</button>
+      </div>  
       </div>
     )
 }
