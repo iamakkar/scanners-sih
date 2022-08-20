@@ -16,8 +16,8 @@ const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
 const videoConstraints = {
   width: 1920,
   height: 1080,
-  // facingMode: { exact: "environment" },
-  facingMode: 'user',
+  facingMode: { exact: "environment" },
+  // facingMode: 'user',
 };
 
 function App() {
@@ -26,7 +26,11 @@ function App() {
   const [open, setOpen] = useState(false);
   const [crop, setCrop] = useState(null);
   const [imagearr, setImagearr] = useState([]);
-
+  const [is_sending, set_is_sending] = useState(false);
+  const [isPreview, setIsPreview] = useState({
+    is: false,
+    img: "",
+  });
 
   const webcamRef = React.useRef(null);
 
@@ -41,17 +45,17 @@ function App() {
     [webcamRef]
   );
 
-  function sendImg(idx) {
+  async function sendImg(idx) {
     if(imagearr === []) return ;
-    imagearr.forEach(async (e) => {
-      let s = e.slice(23);
-      console.log(s);
-      await axios.post(SERVER_URL, {img: s}).then((res) => {
-        console.log(res.data) //23 char
-        let temp = imagearr;
-        temp[idx] = 'data:image/jpeg;base64,' + res.data;
-        setImagearr([...temp]);
-      })
+    set_is_sending(true);
+    let s = imagearr[idx].slice(23);
+    console.log(s);
+    await axios.post(SERVER_URL, {img: s}).then((res) => {
+      console.log(res.data) //23 char
+      let temp = imagearr;
+      temp[idx] = 'data:image/jpeg;base64,' + res.data;
+      setImagearr([...temp]);
+      set_is_sending(false);
     })
   }
 
@@ -165,6 +169,19 @@ function App() {
           <></>
         }
         {
+          isPreview.is && <dialog
+          style={{ position: "absolute" }}
+          open
+          onClick={() => {setIsPreview({is: false, img: ""})}}
+        >
+          <img
+            src={isPreview.img}
+            onClick={() => {setIsPreview({is: false, img: ""})}}
+            alt="no image"
+          />
+        </dialog>
+        }
+        {
           imagearr.map((data, idx) => {
             // let [p, sp] = useState(idx+1);
             let p = idx+1;
@@ -182,7 +199,7 @@ function App() {
               width: '40%',
               margin: '2%'
               }} >
-              <img src={data} style={{width:'-webkit-fill-available'}} />
+              <img src={data} style={{width:'-webkit-fill-available'}} alt="err" onClick={() => setIsPreview({is: true, img: data})} />
               <p style={{fontWeight: 'bold', margin: '10px 20px', fontSize: '20px'}} >{idx+1}</p>
               {/* <input onChange={(e) => {p = e.target.value}} ></input>
               <button onClick={() => pageChange(p, idx+1)} >Change Page</button> */}
