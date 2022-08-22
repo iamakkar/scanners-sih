@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/scanners-sih/static/css/main.131500f4.css",
-    "main.js": "/scanners-sih/static/js/main.2eb22d76.js",
+    "main.css": "/scanners-sih/static/css/main.52e36a2d.css",
+    "main.js": "/scanners-sih/static/js/main.dc6f766a.js",
     "static/js/787.d55bf9d0.chunk.js": "/scanners-sih/static/js/787.d55bf9d0.chunk.js",
     "index.html": "/scanners-sih/index.html",
-    "main.131500f4.css.map": "/scanners-sih/static/css/main.131500f4.css.map",
-    "main.2eb22d76.js.map": "/scanners-sih/static/js/main.2eb22d76.js.map",
+    "main.52e36a2d.css.map": "/scanners-sih/static/css/main.52e36a2d.css.map",
+    "main.dc6f766a.js.map": "/scanners-sih/static/js/main.dc6f766a.js.map",
     "787.d55bf9d0.chunk.js.map": "/scanners-sih/static/js/787.d55bf9d0.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.131500f4.css",
-    "static/js/main.2eb22d76.js"
+    "static/css/main.52e36a2d.css",
+    "static/js/main.dc6f766a.js"
   ]
 }
