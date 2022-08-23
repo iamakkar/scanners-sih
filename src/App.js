@@ -11,8 +11,9 @@ import {  faArrowUp, faArrowDown, faTrash, faMagicWandSparkles } from '@fortawes
 
 import loadingGif from "./giphy.gif";
 
-import {storage} from './Config/Firebase';
-import { ref, uploadBytes  } from "firebase/storage";
+import {storage, db} from './Config/Firebase';
+import { ref, uploadBytes, getDownloadURL  } from "firebase/storage";
+import { collection, addDoc } from 'firebase/firestore';
 
 
 const WebcamComponent = () => <Webcam />;
@@ -22,8 +23,8 @@ const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
 const videoConstraints = {
   width: 1920,
   height: 1080,
-  facingMode: { exact: "environment" },
-  // facingMode: 'user',
+  // facingMode: { exact: "environment" },
+  facingMode: 'user',
 };
 
 function App() {
@@ -54,16 +55,23 @@ function App() {
     [webcamRef]
   );
 
-  async function uplaodImg(){
-    imagearr.map(async(data,idx) => {
+  async function uploadImg(){
+    let link=[];
+    await Promise.all(imagearr.map(async(data,idx) => {
       const storageRef = ref(storage, `${folderName}/${idx+1}`);
       const base64Response = await fetch(imagearr[idx]);
       const blob = await base64Response.blob();
 
-      uploadBytes(storageRef, blob).then((snapshot) => {
-        console.log('Uploaded a blob or file!');
-      });
-    })
+      await uploadBytes(storageRef, blob);
+      let url=await getDownloadURL(storageRef);
+      link.push(url);
+    }))
+
+    await addDoc(collection(db, 'Documents'), {
+      items: [...link],
+      name: folderName,
+      timestamp: Date.now()
+    });
   }
 
   async function sendImg(idx) {
@@ -257,7 +265,7 @@ function App() {
       </div>
       <div style={{display:'flex', flexDirection:'column', width:'30%', margin:'auto'}}>
         <input placeholder='Enter the folder name' style={{fontSize:'larger'}} onChange={e => setFolderName(e.target.value)} ></input>
-        <button className='b1' onClick={()=>uplaodImg()} >Upload</button>
+        <button className='b1' onClick={()=>uploadImg()} >Upload</button>
       </div>  
       </div>
     )
