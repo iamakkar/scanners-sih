@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {  faArrowUp, faArrowDown, faTrash, faMagicWandSparkles, faCamera } from '@fortawesome/free-solid-svg-icons';
 
 import loadingGif from "./giphy.gif";
+import uploadingGif from "./loading-icon-animated-gif-19.jpg";
 
 import {storage, db} from './Config/Firebase';
 import { ref, uploadBytes, getDownloadURL  } from "firebase/storage";
@@ -36,6 +37,8 @@ function App() {
   const [loading, setLoading] = useState([]);
   const [is_sending, set_is_sending] = useState(false);
   const [folderName, setFolderName] = useState();
+  const [upload, setUpload] = useState(false);
+  const [uploadBool, setUploadBool] = useState(false);
   const [isPreview, setIsPreview] = useState({
     is: false,
     img: "",
@@ -56,6 +59,7 @@ function App() {
   );
 
   async function uploadImg(){
+    setUploadBool(true);
     let link=[];
     await Promise.all(imagearr.map(async(data,idx) => {
       const storageRef = ref(storage, `${folderName}/${idx+1}`);
@@ -65,13 +69,18 @@ function App() {
       await uploadBytes(storageRef, blob);
       let url=await getDownloadURL(storageRef);
       link.push(url);
-    }))
+    }));
+
+    setUpload(true);
+    setUploadBool(false);
 
     await addDoc(collection(db, 'Documents'), {
       items: [...link],
       name: folderName,
       timestamp: Date.now()
     });
+
+
   }
 
   async function sendImg(idx) {
@@ -240,7 +249,7 @@ function App() {
               }} >
               {!loading[idx] ? 
                 <img src={data} style={{width:'-webkit-fill-available', borderRadius:'inherit'}} alt="err" onClick={() => setIsPreview({is: true, img: data})} /> :
-                <img src={loadingGif} />
+                <img style={{width:'fit-content'}} src={loadingGif} />
               }
               <p style={{fontWeight: 'bold', margin: '10px 20px', fontSize: '20px'}} >{idx+1}</p>
               {/* <input onChange={(e) => {p = e.target.value}} ></input>
@@ -264,8 +273,11 @@ function App() {
       />
       </div>
       <div style={{display:'flex', flexDirection:'column', alignItems:'center', width:'30%', margin:'auto'}}>
-        <input placeholder='Enter The Folder Name' style={{fontSize:'large', width:'fit-content'}} onChange={e => setFolderName(e.target.value)} ></input>
-        <button className='b1' style={{padding:'12px 20px'}} onClick={()=>uploadImg()} >Upload</button>
+        <input placeholder='Enter The Folder Name' style={{fontSize:'large', width:'fit-content', margin:'10px'}} onChange={e => setFolderName(e.target.value)} ></input>
+        {!uploadBool? <button className='b1' onClick={()=>uploadImg()} >Upload</button>:
+        <img style={{width:'25%'}} src={uploadingGif} />}
+        {/* <button className='b1' style={{padding:'12px 20px'}} onClick={()=>uploadImg()} >Upload</button> */}
+        {upload? <p style={{fontSize: 'x-large', fontWeight: '600'}} >Uploaded Successfully!!</p>: null }
       </div>  
       </div>
     )
