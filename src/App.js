@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 // import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/material/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {  faArrowUp, faArrowDown, faTrash, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
+import {  faArrowUp, faArrowDown, faTrash, faMagicWandSparkles, faCamera } from '@fortawesome/free-solid-svg-icons';
 
 import loadingGif from "./giphy.gif";
 
@@ -184,7 +184,7 @@ function App() {
 
     return (
       <div className="App" style={{alignItems:'center'}}>
-        <div style={{display:'flex',flexDirection:'column', width:'90%', height:'80%',margin:'auto',border: '1px solid black', borderRadius: '0.6%'}}>
+        <div style={{display:'flex',flexDirection:'column', width:'90%', height:'80%',margin:'auto'/*,border: '1px solid black', borderRadius: '0.6%'*/}}>
           <Webcam 
           audio={false}
           // height={1080}
@@ -195,8 +195,7 @@ function App() {
           className="webcam"
           screenshotQuality={1}
           />
-          <button className='b1' onClick={(e)=>{e.preventDefault();capture();}} >
-        Capture</button>
+          <button className='b1' onClick={(e)=>{e.preventDefault();capture();}} ><FontAwesomeIcon style={{margin: '3px 20px', fontSize: '25px'}} icon={faCamera}/></button>
         </div>
       <div style={{display:'flex', flexFlow:'row wrap', justifyContent:'center'}}>
         {
@@ -233,24 +232,25 @@ function App() {
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              border: '1px solid black',
-              borderRadius: '0.6%',
+              // border: '1px solid black',
+              borderRadius: '2%',
               width: '40%',
-              margin: '2%'
+              margin: '2%',
+              backgroundColor: 'whitesmoke'
               }} >
               {!loading[idx] ? 
-                <img src={data} style={{width:'-webkit-fill-available'}} alt="err" onClick={() => setIsPreview({is: true, img: data})} /> :
+                <img src={data} style={{width:'-webkit-fill-available', borderRadius:'inherit'}} alt="err" onClick={() => setIsPreview({is: true, img: data})} /> :
                 <img src={loadingGif} />
               }
               <p style={{fontWeight: 'bold', margin: '10px 20px', fontSize: '20px'}} >{idx+1}</p>
               {/* <input onChange={(e) => {p = e.target.value}} ></input>
               <button onClick={() => pageChange(p, idx+1)} >Change Page</button> */}
               <div style={{display: 'flex', flexDirection: 'row'}}>
-                <FontAwesomeIcon style={{margin: '10px 20px', fontSize: '20px'}} icon={faTrash} onClick={() => pageDelete(data)} />
-                {idx !== 0 && <FontAwesomeIcon style={{margin: '10px 20px', fontSize: '20px'}} icon={faArrowUp} onClick={() => pageUp(idx)} />}
-                {idx !== imagearr.length-1 && <FontAwesomeIcon style={{margin: '10px 20px', fontSize: '20px'}} icon={faArrowDown} onClick={() => pageDown(idx)} />}
+                <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px'}} icon={faTrash} onClick={() => pageDelete(data)} />
+                {idx !== 0 && <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px'}} icon={faArrowUp} onClick={() => pageUp(idx)} />}
+                {idx !== imagearr.length-1 && <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px'}} icon={faArrowDown} onClick={() => pageDown(idx)} />}
               </div>
-              <button className='b1' onClick={()=>sendImg(idx)} ><FontAwesomeIcon style={{margin: '4px 5px', fontSize: '30px'}} icon={faMagicWandSparkles} /></button>
+              <button style={{border:'none', backgroundColor:'inherit'}} onClick={()=>sendImg(idx)} ><FontAwesomeIcon style={{margin: '4px 5px', fontSize: '30px'}} icon={faMagicWandSparkles} /></button>
               </div>
             )
           })
@@ -263,9 +263,9 @@ function App() {
         action={action}
       />
       </div>
-      <div style={{display:'flex', flexDirection:'column', width:'30%', margin:'auto'}}>
-        <input placeholder='Enter the folder name' style={{fontSize:'larger'}} onChange={e => setFolderName(e.target.value)} ></input>
-        <button className='b1' onClick={()=>uploadImg()} >Upload</button>
+      <div style={{display:'flex', flexDirection:'column', alignItems:'center', width:'30%', margin:'auto'}}>
+        <input placeholder='Enter The Folder Name' style={{fontSize:'large', width:'fit-content'}} onChange={e => setFolderName(e.target.value)} ></input>
+        <button className='b1' style={{padding:'12px 20px'}} onClick={()=>uploadImg()} >Upload</button>
       </div>  
       </div>
     )
