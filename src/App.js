@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 // import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/material/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {  faArrowUp, faArrowDown, faTrash, faMagicWandSparkles, faCamera } from '@fortawesome/free-solid-svg-icons';
+import {  faArrowUp, faArrowDown, faTrash, faMagicWandSparkles, faCamera, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 
 import loadingGif from "./giphy.gif";
 import uploadingGif from "./loading-icon-animated-gif-19.jpg";
@@ -15,17 +15,19 @@ import uploadingGif from "./loading-icon-animated-gif-19.jpg";
 import {storage, db} from './Config/Firebase';
 import { ref, uploadBytes, getDownloadURL  } from "firebase/storage";
 import { collection, addDoc } from 'firebase/firestore';
+import jsPDF from "jspdf";
 
 
 const WebcamComponent = () => <Webcam />;
 
 const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
+const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
 
 const videoConstraints = {
   width: 1920,
   height: 1080,
-  facingMode: { exact: "environment" },
-  // facingMode: 'user',
+  // facingMode: { exact: "environment" },
+  facingMode: 'user',
 };
 
 function App() {
@@ -34,6 +36,8 @@ function App() {
   const [open, setOpen] = useState(false);
   const [crop, setCrop] = useState(null);
   const [imagearr, setImagearr] = useState([]);
+  const [imagearrOrig, setImagearrOrig] = useState([]);
+  const [rotateAngle, setRotateAngle] = useState([]);
   const [loading, setLoading] = useState([]);
   const [is_sending, set_is_sending] = useState(false);
   const [folderName, setFolderName] = useState();
@@ -50,6 +54,8 @@ function App() {
     () => {
       const imageSrc = webcamRef.current.getScreenshot();
       setImagearr(img => [...img, imageSrc]);
+      setImagearrOrig(img => [...img, imageSrc]);
+      setRotateAngle(dat => [...dat, 0]);
       setLoading(cur => [...cur, false]);
       // setImage(imageSrc);
       // sendImg(imageSrc);
@@ -92,8 +98,8 @@ function App() {
     temp_load[idx]=true;
     setLoading([...temp_load]);
     await axios.post(SERVER_URL, {img: s}).then((res) => {
-      setTimeout(() => {  }, 5000);
-      console.log(res.data) //23 char
+      // setTimeout(() => {  }, 5000);
+      // console.log(res.data) //23 char
       let temp = imagearr;
       temp[idx] = 'data:image/jpeg;base64,' + res.data;
       setImagearr([...temp]);
@@ -106,6 +112,55 @@ function App() {
     setLoading([...temp_load]);
     console.log("done");
   }
+
+  async function filterFunc(idx,type) {
+    if(type==0){
+      let tempy=imagearr;
+      tempy[idx]=imagearrOrig[idx];
+      setImagearr([...tempy]);
+      return;
+    }
+    if(imagearr === []) return ;
+    set_is_sending(true);
+    let s = imagearrOrig[idx].slice(23);
+    console.log(s);
+    let temp_load=loading;
+    temp_load[idx]=true;
+    setLoading([...temp_load]);
+    await axios.post(SERVER_URL2, {img: s, type: type-1}).then((res) => {
+      // setTimeout(() => {  }, 5000);
+      // console.log(res.data) //23 char
+      let temp = imagearr;
+      temp[idx] = 'data:image/jpeg;base64,' + res.data;
+      setImagearr([...temp]);
+      set_is_sending(false);
+    }).catch(error => {
+      console.log(error);
+    })
+    temp_load=loading;
+    temp_load[idx]=false;
+    setLoading([...temp_load]);
+    console.log("done");
+  }
+
+  async function rotate(idx){
+    if(imagearr === []) return ;
+    let temp=rotateAngle;
+    temp[idx]+=90;
+    setRotateAngle([...temp]);
+  }
+
+  // async function savePDF(){
+  //   const doc = new jsPDF();
+  //   doc.deletePage(1);
+  //   for(let img in imagearr){
+  //     doc.addImage(img);
+  //   }
+  //   const pdfURL = doc.output("bloburl");
+  //   const pdfWindow = window.open();
+  //        pdfWindow.location.href = fileURL;   
+  //   window.open(pdfURL as any, "_blank");
+  // }
 
   function saveImg(img) {
     if(img !== '')
@@ -152,12 +207,31 @@ function App() {
     setImagearr([...temp]);
   }
 
-  function pageDelete(n) {
-    setImagearr(img => img.filter(function(s) {
-      return s !== n;
-    })
-    )
+  function pageDelete(idx){
+    setImagearr(img => img.filter(function(s, i) {
+      return i !== idx;
+    }))
+
+    setImagearrOrig(img => img.filter(function(s, i) {
+      return i !== idx;
+    }))
+
+    setRotateAngle(dat => dat.filter(function(s, i){
+      return i !== idx;
+    }))
   }
+
+  // function pageDelete(n) {
+  //   setImagearr(img => img.filter(function(s) {
+  //     return s !== n;
+  //   })
+  //   )
+
+  //   setImagearrOrig(img => img.filter(function(s) {
+  //     return s !== n;
+  //   })
+  //   )
+  // }
 
   function pageUp(idx) {
     let temp = imagearr;
@@ -165,6 +239,18 @@ function App() {
     temp[idx] = temp[idx-1];
     temp[idx-1] = t;
     setImagearr([...temp]);
+
+    let temp2 = imagearrOrig;
+    let t2 = temp2[idx];
+    temp2[idx] = temp2[idx-1];
+    temp2[idx-1] = t2;
+    setImagearrOrig([...temp2]);
+
+    let temp3 = rotateAngle;
+    let t3 = temp3[idx];
+    temp3[idx] = temp3[idx-1];
+    temp3[idx-1] = t3;
+    setRotateAngle([...temp3]);
   }
 
   function pageDown(idx) {
@@ -173,6 +259,18 @@ function App() {
     temp[idx] = temp[idx+1];
     temp[idx+1] = t;
     setImagearr([...temp]);
+
+    let temp2 = imagearrOrig;
+    let t2 = temp2[idx];
+    temp2[idx] = temp2[idx+1];
+    temp2[idx+1] = t2;
+    setImagearrOrig([...temp2]);
+
+    let temp3 = rotateAngle;
+    let t3 = temp3[idx];
+    temp3[idx] = temp3[idx+1];
+    temp3[idx+1] = t3;
+    setRotateAngle([...temp3]);
   }
  
   const action = (
@@ -245,21 +343,29 @@ function App() {
               borderRadius: '2%',
               width: '40%',
               margin: '2%',
-              backgroundColor: 'whitesmoke'
+              backgroundColor: 'whitesmoke',
+
               }} >
               {!loading[idx] ? 
-                <img src={data} style={{width:'-webkit-fill-available', borderRadius:'inherit'}} alt="err" onClick={() => setIsPreview({is: true, img: data})} /> :
-                <img style={{width:'fit-content'}} src={loadingGif} />
+                <img src={data} style={{width:'-webkit-fill-available', borderRadius:'inherit', transform:`rotate(${rotateAngle[idx]}deg)`, margin:(rotateAngle[idx]/90)%2 == 1 ? '25% 0': '0'}} alt="err" onClick={() => setIsPreview({is: true, img: data})} /> :
+                <img style={{width:'-webkit-fill-available'}} src={loadingGif} />
               }
               <p style={{fontWeight: 'bold', margin: '10px 20px', fontSize: '20px'}} >{idx+1}</p>
               {/* <input onChange={(e) => {p = e.target.value}} ></input>
               <button onClick={() => pageChange(p, idx+1)} >Change Page</button> */}
               <div style={{display: 'flex', flexDirection: 'row'}}>
-                <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px'}} icon={faTrash} onClick={() => pageDelete(data)} />
-                {idx !== 0 && <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px'}} icon={faArrowUp} onClick={() => pageUp(idx)} />}
-                {idx !== imagearr.length-1 && <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px'}} icon={faArrowDown} onClick={() => pageDown(idx)} />}
+                <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px', cursor:'pointer'}} icon={faTrash} onClick={() => pageDelete(idx)} />
+                {idx !== 0 && <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px', cursor:'pointer'}} icon={faArrowUp} onClick={() => pageUp(idx)} />}
+                {idx !== imagearr.length-1 && <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px', cursor:'pointer'}} icon={faArrowDown} onClick={() => pageDown(idx)} />}
+                <FontAwesomeIcon style={{margin: '10px 10px', fontSize: '20px', cursor:'pointer'}} icon={faRotateRight} onClick={() => rotate(idx)} />
               </div>
-              <button style={{border:'none', backgroundColor:'inherit'}} onClick={()=>sendImg(idx)} ><FontAwesomeIcon style={{margin: '4px 5px', fontSize: '30px'}} icon={faMagicWandSparkles} /></button>
+              <div style={{display:'flex', flexDirection:'row'}}>
+                <button className='b1' style={{padding:'6px', cursor:'pointer'}} onClick={()=> filterFunc(idx,0)}>None</button>
+                <button className='b1' style={{padding:'6px', cursor:'pointer'}} onClick={()=> filterFunc(idx,1)}>1</button>
+                <button className='b1' style={{padding:'6px', cursor:'pointer'}} onClick={()=> filterFunc(idx,2)}>2</button>
+                <button className='b1' style={{padding:'6px', cursor:'pointer'}} onClick={()=> filterFunc(idx,3)}>3</button>
+              </div>
+              <button style={{border:'none', backgroundColor:'initial', cursor:'pointer'}} onClick={()=>sendImg(idx)} ><FontAwesomeIcon style={{margin: '4px 5px', fontSize: '30px'}} icon={faMagicWandSparkles} /></button>
               </div>
             )
           })
@@ -273,12 +379,15 @@ function App() {
       />
       </div>
       <div style={{display:'flex', flexDirection:'column', alignItems:'center', width:'30%', margin:'auto'}}>
-        <input placeholder='Enter The Folder Name' style={{fontSize:'large', width:'fit-content', margin:'10px'}} onChange={e => setFolderName(e.target.value)} ></input>
+        <input placeholder='Enter The Folder Name' style={{fontSize:'large', width:'fit-content', margin:'10px', fontStyle:'oblique'}} onChange={e => setFolderName(e.target.value)} ></input>
         {!uploadBool? <button className='b1' onClick={()=>uploadImg()} >Upload</button>:
-        <img style={{width:'25%'}} src={uploadingGif} />}
+        <img style={{width:'85%'}} src={uploadingGif} />}
         {/* <button className='b1' style={{padding:'12px 20px'}} onClick={()=>uploadImg()} >Upload</button> */}
         {upload? <p style={{fontSize: 'x-large', fontWeight: '600'}} >Uploaded Successfully!!</p>: null }
       </div>  
+      {/* <div>
+        <button className='b1' onClick={()=>savePDF()}> Generate PDF </button>
+      </div> */}
       </div>
     )
 }
