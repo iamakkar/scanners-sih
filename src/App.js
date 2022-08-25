@@ -16,12 +16,16 @@ import { storage, db } from './Config/Firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc } from 'firebase/firestore';
 import jsPDF from "jspdf";
+import SweetAlert from 'react-bootstrap-sweetalert';
 
 
 const WebcamComponent = () => <Webcam />;
 
-const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
-const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
+const SERVER_URL = 'https://3da2-103-167-127-148.in.ngrok.io/index';
+const SERVER_URL2 = 'https://3da2-103-167-127-148.in.ngrok.io/filtered';
+
+// const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
+// const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
 
 const videoConstraints = {
   width: 1920,
@@ -43,6 +47,7 @@ function App() {
   const [folderName, setFolderName] = useState();
   const [upload, setUpload] = useState(false);
   const [uploadBool, setUploadBool] = useState(false);
+  const [blurIndex,setBlurIndex] = useState(-1);
   const [isPreview, setIsPreview] = useState({
     is: false,
     img: "",
@@ -98,6 +103,10 @@ function App() {
     temp_load[idx] = true;
     setLoading([...temp_load]);
     await axios.post(SERVER_URL, { img: s }).then((res) => {
+      if(res.data=='blurred'){
+        setBlurIndex(idx);
+        return;
+      }
       // setTimeout(() => {  }, 5000);
       // console.log(res.data) //23 char
       let temp = imagearr;
@@ -141,6 +150,11 @@ function App() {
     temp_load[idx] = false;
     setLoading([...temp_load]);
     console.log("done");
+  }
+
+  async function blurFunc(){
+    pageDelete(blurIndex);
+    setBlurIndex(-1);
   }
 
   async function rotate(idx) {
@@ -291,6 +305,12 @@ function App() {
 
   return (
     <div className="App" style={{ alignItems: 'center' }}>
+      {blurIndex==-1?null:<SweetAlert
+        title={"Retake the image"}
+        type={'danger'}
+        confirmBtnBsStyle={{backgroundColor:'black', border: 'none', boxShadow:'none', color:'white', textDecoration:'none', width:'10%'}}
+        onConfirm={blurFunc}
+        />}
       <div style={{ display: 'flex', flexDirection: 'column', width: '90%', height: '80%', margin: 'auto'/*,border: '1px solid black', borderRadius: '0.6%'*/ }}>
         <Webcam
           audio={false}
@@ -343,8 +363,7 @@ function App() {
               borderRadius: '2%',
               width: '90%',
               margin: '2%',
-              backgroundColor: 'whitesmoke',
-
+              backgroundColor: 'whitesmoke'
               }} >
                 {!loading[idx] ?
                   <img src={data} style={{ width: '-webkit-fill-available', borderRadius: 'inherit', transform: `rotate(${rotateAngle[idx]}deg)`, margin: (rotateAngle[idx] / 90) % 2 == 1 ? '25% 0' : '0' }} alt="err" onClick={() => setIsPreview({ is: true, img: data })} /> :
