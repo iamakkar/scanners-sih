@@ -42,6 +42,7 @@ function App() {
   const [imagearr, setImagearr] = useState([]);
   const [imagearrOrig, setImagearrOrig] = useState([]);
   const [rotateAngle, setRotateAngle] = useState([]);
+  const [imageName, setImageName] = useState([]);
   const [loading, setLoading] = useState([]);
   const [is_sending, set_is_sending] = useState(false);
   const [folderName, setFolderName] = useState();
@@ -62,6 +63,7 @@ function App() {
       setImagearrOrig(img => [...img, imageSrc]);
       setRotateAngle(dat => [...dat, 0]);
       setLoading(cur => [...cur, false]);
+      setImageName(dat => [...dat, dat.length+1]);
       // setImage(imageSrc);
       // sendImg(imageSrc);
     },
@@ -73,7 +75,7 @@ function App() {
     setUploadBool(true);
     let link = [];
     await Promise.all(imagearr.map(async (data, idx) => {
-      const storageRef = ref(storage, `${folderName}/${idx + 1}`);
+      const storageRef = ref(storage, `${folderName}/${imageName[idx]}`);
       const base64Response = await fetch(imagearr[idx]);
       const blob = await base64Response.blob();
 
@@ -164,6 +166,12 @@ function App() {
     setRotateAngle([...temp]);
   }
 
+  async function setImageNameFunc(e,idx){
+    let temp=imageName;
+    temp[idx]=e.target.value;
+    setImageName([...temp]);
+  }
+
   // async function savePDF(){
   //   const doc = new jsPDF();
   //   doc.deletePage(1);
@@ -233,6 +241,10 @@ function App() {
     setRotateAngle(dat => dat.filter(function (s, i) {
       return i !== idx;
     }))
+
+    setImageName(dat => dat.filter(function(s,i){
+      return i !== idx;
+    } ))
   }
 
   // function pageDelete(n) {
@@ -265,6 +277,12 @@ function App() {
     temp3[idx] = temp3[idx - 1];
     temp3[idx - 1] = t3;
     setRotateAngle([...temp3]);
+
+    let temp4 = imageName;
+    let t4 = temp4[idx];
+    temp4[idx] = temp4[idx - 1];
+    temp4[idx - 1] = t4;
+    setImageName([...temp4]);
   }
 
   function pageDown(idx) {
@@ -285,6 +303,12 @@ function App() {
     temp3[idx] = temp3[idx + 1];
     temp3[idx + 1] = t3;
     setRotateAngle([...temp3]);
+
+    let temp4 = imageName;
+    let t4 = temp4[idx];
+    temp4[idx] = temp4[idx + 1];
+    temp4[idx + 1] = t4;
+    setImageName([...temp4]);
   }
 
   const action = (
@@ -369,7 +393,7 @@ function App() {
                   <img src={data} style={{ width: '-webkit-fill-available', borderRadius: 'inherit', transform: `rotate(${rotateAngle[idx]}deg)`, margin: (rotateAngle[idx] / 90) % 2 == 1 ? '25% 0' : '0' }} alt="err" onClick={() => setIsPreview({ is: true, img: data })} /> :
                   <img style={{ width: '-webkit-fill-available' }} src={loadingGif} />
                 }
-                <p style={{ fontWeight: 'bold', margin: '10px 20px', fontSize: '20px' }} >{idx + 1}</p>
+                <input value={imageName[idx]} style={{ fontWeight: 'bold', margin: '10px 20px', fontSize: '20px' }} onChange={(e)=>setImageNameFunc(e,idx)} />
                 {/* <input onChange={(e) => {p = e.target.value}} ></input>
               <button onClick={() => pageChange(p, idx+1)} >Change Page</button> */}
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -397,7 +421,7 @@ function App() {
           action={action}
         />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '30%', margin: 'auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto' }}>
         <input placeholder='Enter The Folder Name' style={{ fontSize: 'large', width: 'fit-content', margin: '10px', fontStyle: 'oblique' }} onChange={e => setFolderName(e.target.value)} ></input>
         {!uploadBool ? <button className='b1' onClick={() => uploadImg()} >Upload</button> :
           <img style={{ width: '85%' }} src={uploadingGif} />}
