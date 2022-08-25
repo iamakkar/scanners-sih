@@ -113,8 +113,8 @@ function App() {
     console.log("done");
   }
 
-  async function filterFunc(idx,type) {
-    if(type==0){
+  async function filterFunc(idx,num) {
+    if(num==0){
       let tempy=imagearr;
       tempy[idx]=imagearrOrig[idx];
       setImagearr([...tempy]);
@@ -127,7 +127,7 @@ function App() {
     let temp_load=loading;
     temp_load[idx]=true;
     setLoading([...temp_load]);
-    await axios.post(SERVER_URL2, {img: s, type: type-1}).then((res) => {
+    await axios.post(SERVER_URL2, {img: s, filter: num-1}).then((res) => {
       // setTimeout(() => {  }, 5000);
       // console.log(res.data) //23 char
       let temp = imagearr;
@@ -158,8 +158,8 @@ function App() {
   //   }
   //   const pdfURL = doc.output("bloburl");
   //   const pdfWindow = window.open();
-  //        pdfWindow.location.href = fileURL;   
-  //   window.open(pdfURL as any, "_blank");
+  //   pdfWindow.location.href = pdfURL;   
+  //   // window.open(pdfURL as any, "_blank");
   // }
 
   function saveImg(img) {
