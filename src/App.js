@@ -30,8 +30,8 @@ const SERVER_URL2 = 'https://3da2-103-167-127-148.in.ngrok.io/filtered';
 const videoConstraints = {
   width: 1920,
   height: 1080,
-  // facingMode: { exact: "environment" },
-  facingMode: 'user',
+  facingMode: { exact: "environment" },
+  // facingMode: 'user',
 };
 
 function App() {
