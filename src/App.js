@@ -26,8 +26,8 @@ const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
 const videoConstraints = {
   width: 1920,
   height: 1080,
-  facingMode: { exact: "environment" },
-  // facingMode: 'user',
+  // facingMode: { exact: "environment" },
+  facingMode: 'user',
 };
 
 function App() {
@@ -341,7 +341,7 @@ function App() {
               alignItems: 'center',
               // border: '1px solid black',
               borderRadius: '2%',
-              width: '40%',
+              width: '90%',
               margin: '2%',
               backgroundColor: 'whitesmoke',
 
