@@ -28,8 +28,8 @@ const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
 const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
 
 const videoConstraints = {
-  width: 1920,
-  height: 1080,
+  width: 2430,
+  height: 4320,
   facingMode: { exact: "environment" },
   // facingMode: 'user',
 };
