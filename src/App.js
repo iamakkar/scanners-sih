@@ -21,11 +21,11 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 
 const WebcamComponent = () => <Webcam />;
 
-const SERVER_URL = 'https://3da2-103-167-127-148.in.ngrok.io/index';
-const SERVER_URL2 = 'https://3da2-103-167-127-148.in.ngrok.io/filtered';
+// const SERVER_URL = 'https://3da2-103-167-127-148.in.ngrok.io/index';
+// const SERVER_URL2 = 'https://3da2-103-167-127-148.in.ngrok.io/filtered';
 
-// const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
-// const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
+const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
+const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
 
 const videoConstraints = {
   width: 1920,
