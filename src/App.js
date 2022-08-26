@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 // import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/material/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUp, faArrowDown, faTrash, faMagicWandSparkles, faCamera, faCameraRotate,faAngleUp, faAngleDown,  } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faArrowDown, faTrash, faMagicWandSparkles, faCamera, faCameraRotate,faAngleUp, faAngleDown, faRetweet, faFileLines, faCircleHalfStroke, faYinYang } from '@fortawesome/free-solid-svg-icons';
 
 // import loadingGif from "./giphy.gif";
 import ReactLoading from "react-loading";
@@ -19,6 +19,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, setDoc, getDoc, doc } from 'firebase/firestore';
 import jsPDF from "jspdf";
 import SweetAlert from 'react-bootstrap-sweetalert';
+import Swal from 'sweetalert2'
 import { useParams } from "react-router";
 
 const audio_src = './shutter.mp3'
@@ -32,8 +33,8 @@ const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
 const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
 
 const videoConstraints = {
-  width: 2430,
-  height: 4320,
+  width: 1920,
+  height: 1080,
   facingMode: { exact: "environment" },
   // facingMode: 'user',
 };
@@ -53,7 +54,7 @@ function App(props) {
   const [imageName, setImageName] = useState([]);
   const [loading, setLoading] = useState([]);
   const [is_sending, set_is_sending] = useState(false);
-  const [folderName, setFolderName] = useState();
+  const [folderName, setFolderName] = useState("");
   const [upload, setUpload] = useState(false);
   const [uploadBool, setUploadBool] = useState(false);
   const [blurIndex,setBlurIndex] = useState(-1);
@@ -64,6 +65,15 @@ function App(props) {
 
   const webcamRef = React.useRef(null);
 
+  function digitCount(n) {
+    let ans = 0;
+    while(n) {
+      ans += 1;
+      n = Math.floor(n / 10);
+    }
+    return ans;
+  }
+
   const capture = React.useCallback(
     () => {
       const imageSrc = webcamRef.current.getScreenshot();
@@ -71,7 +81,24 @@ function App(props) {
       setImagearrOrig(img => [...img, imageSrc]);
       setRotateAngle(dat => [...dat, 0]);
       setLoading(cur => [...cur, false]);
-      setImageName(dat => [...dat, dat.length+1]);
+      setImageName(dat => {
+        let n = dat.length + 1;
+        let c = digitCount(n);
+        let s = 'IMG_';
+        let t, x;
+        switch(c) {
+          case 1:
+            x = '00';
+            t = x.concat(n.toString());
+            break ;
+          case 2:
+            x = '0';
+            t = x.concat(n.toString());
+            break ;
+        }
+        let f = s.concat(t);
+        return [...dat, f]
+    });
       // setImage(imageSrc);
       // sendImg(imageSrc);
     },
@@ -80,6 +107,16 @@ function App(props) {
   );
 
   async function uploadImg() {
+    if(folderName === "") {
+
+      return (
+        Swal.fire({
+        title: "Folder name can't be empty!",
+        type: 'danger',
+        onConfirm: () => {}
+      })
+      )
+    }
     setUploadBool(true);
     let link = [];
     await Promise.all(imagearr.map(async (data, idx) => {
@@ -94,6 +131,7 @@ function App(props) {
 
     setUpload(true);
     setUploadBool(false);
+    setFolderName("");
 
     let gotDataDoc = await getDoc(doc(db, 'Documents', id));
     let tempData={
@@ -107,7 +145,13 @@ function App(props) {
       await setDoc(doc(db, "Documents", id), {data : [...gotData.data, tempData]});
     }else{
       await setDoc(doc(db, "Documents", id), {data: [tempData]});
-    }
+    } 
+    
+      setImagearr([]);
+      setImagearrOrig([]);
+      setRotateAngle([]);
+      setImageName([]);
+      setLoading([]);
 
     // await setDoc(doc(db, "Documents", id), [...gotData, tempData]);
 
@@ -387,7 +431,7 @@ function App(props) {
             :
             <></>
         }
-        {
+        {/* {
           isPreview.is && <dialog
             style={{ position: "absolute", zIndex: 999 }}
             open
@@ -399,7 +443,7 @@ function App(props) {
               alt="no image"
             />
           </dialog>
-        }
+        } */}
         {
           imagearr.map((data, idx) => {
             // let [p, sp] = useState(idx+1);
@@ -414,10 +458,10 @@ function App(props) {
               justifyContent: 'center',
               alignItems: 'center',
               // border: '1px solid black',
-              borderRadius: '8%',
-              width: '85%',
+              // borderRadius: '4%',
+              width: '95%',
               margin: '2%',
-              backgroundColor: 'whitesmoke',
+              backgroundColor: 'white',
               }} >
                 {!loading[idx] ?
                   <img src={data} style={{ width: '-webkit-fill-available', transform: `rotate(${rotateAngle[idx]}deg)`, margin: (rotateAngle[idx] / 90) % 2 == 1 ? '25% 0' : '0' }} alt="err" onClick={() => setIsPreview({ is: true, img: data })} /> :
@@ -426,7 +470,7 @@ function App(props) {
                   <ReactLoading type='spin' color='black' />
                   </div>
                 }
-                <input value={imageName[idx]} style={{ fontWeight: 'bold', margin: '10px 20px', fontSize: '20px' }} onChange={(e)=>setImageNameFunc(e,idx)} />
+                <input value={imageName[idx]} style={{ fontWeight: 'bold', margin: '10px 20px', fontSize: '20px', textAlign: 'center' }} onChange={(e)=>setImageNameFunc(e,idx)} />
                 {/* <input onChange={(e) => {p = e.target.value}} ></input>
               <button onClick={() => pageChange(p, idx+1)} >Change Page</button> */}
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -435,13 +479,25 @@ function App(props) {
                   {idx !== imagearr.length - 1 && <FontAwesomeIcon style={{ margin: '10px 10px', fontSize: '20px', cursor: 'pointer' }} icon={faAngleDown} onClick={() => pageDown(idx)} />}
                   <FontAwesomeIcon style={{ margin: '10px 10px', fontSize: '20px', cursor: 'pointer' }} icon={faCameraRotate} onClick={() => rotate(idx)} />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <button className='b2' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 0)}>Original</button>
-                  <button className='b2' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 2)}>White Board</button>
-                  <button className='b2' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 2)}>Contrast</button>
-                  <button className='b2' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 3)}>Grayscale</button>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', width: '100%' }}>
+                  <button className='b2' style={{ padding: '6px', cursor: 'pointer', width: '20%' }} onClick={() => filterFunc(idx, 0)}>
+                    <FontAwesomeIcon icon={faRetweet} fontSize={25} />
+                    Original
+                  </button>
+                  <button className='b2' style={{ padding: '6px', cursor: 'pointer', width: '20%' }} onClick={() => filterFunc(idx, 2)}>
+                    <FontAwesomeIcon icon={faCircleHalfStroke} fontSize={25} />
+                    Saturation
+                    </button>
+                  <button className='b2' style={{ padding: '6px', cursor: 'pointer', width: '20%' }} onClick={() => filterFunc(idx, 2)}>
+                   <FontAwesomeIcon icon={faFileLines} fontSize={25} />
+                    Docs
+                    </button>
+                    <button className='b2' style={{ padding: '6px', cursor: 'pointer', width: '20%' }} onClick={() => filterFunc(idx, 2)}>
+                   <FontAwesomeIcon icon={faYinYang} fontSize={25} />
+                    B/W
+                    </button>
                 </div>
-                <button className='b3' onClick={() => sendImg(idx)} >Send</button>
+                <button className='b3' onClick={() => sendImg(idx)} >Adjust</button>
               </div>
             )
           })
@@ -454,9 +510,10 @@ function App(props) {
           action={action}
         />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto' }}>
-        <input placeholder='Enter The Folder Name' style={{ fontSize: 'large', width: 'fit-content', margin: '10px', fontStyle: 'oblique' }} onChange={e => setFolderName(e.target.value)} ></input>
-        {!uploadBool ? <button className='b3' style={{padding: '6%'}} onClick={() => uploadImg()} >Upload</button> :
+      { imagearr.length !== 0 &&
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto' }}>
+        <input className='txt-input' value={folderName} placeholder='Enter The Folder Name' style={{  width: '80%', margin: '10px' }} onChange={e => setFolderName(e.target.value)} ></input>
+        {!uploadBool ? <button className='b3' onClick={() => uploadImg()} >Upload</button> :
           // <img style={{ width: '85%' }} src={uploadingGif} />
           <div style={{padding: 30}} >
           <ReactLoading type='bars' color='black' />
@@ -470,7 +527,8 @@ function App(props) {
           onConfirm={() => {setUpload(!upload)}}
           />
         : null}
-      </div>
+        <br />
+      </div>}
       {/* <div>
         <button className='b1' onClick={()=>savePDF()}> Generate PDF </button>
       </div> */}
