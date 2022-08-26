@@ -155,9 +155,9 @@ function App(props) {
     let link = [];
     await Promise.all(imagearr.map(async (data, idx) => {
       const storageRef = ref(storage, `${folderName}/${imageName[idx]}`);
-      const base64Response = await fetch(imagearr[idx]);
+      let base64Response = await fetch(imagearr[idx]);
       const blob = await base64Response.blob();
-
+      
       await uploadBytes(storageRef, blob);
       let url = await getDownloadURL(storageRef);
       link.push({url:url,name:imageName[idx]});
@@ -518,7 +518,7 @@ function App(props) {
                     <FontAwesomeIcon icon={faRetweet} fontSize={25} />
                     Original
                   </button>
-                  <button className='b2' style={{ padding: '6px', cursor: 'pointer', width: '20%' }} onClick={() => filterFunc(idx, 2)}>
+                  <button className='b2' style={{ padding: '6px', cursor: 'pointer', width: '20%' }} onClick={() => filterFunc(idx, 1)}>
                     <FontAwesomeIcon icon={faCircleHalfStroke} fontSize={25} />
                     Saturation
                     </button>
@@ -526,7 +526,7 @@ function App(props) {
                    <FontAwesomeIcon icon={faFileLines} fontSize={25} />
                     Docs
                     </button>
-                    <button className='b2' style={{ padding: '6px', cursor: 'pointer', width: '20%' }} onClick={() => filterFunc(idx, 2)}>
+                    <button className='b2' style={{ padding: '6px', cursor: 'pointer', width: '20%' }} onClick={() => filterFunc(idx, 3)}>
                    <FontAwesomeIcon icon={faYinYang} fontSize={25} />
                     B/W
                     </button>

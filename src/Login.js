@@ -5,12 +5,14 @@ import { Button } from "react-bootstrap";
 import {auth} from './Config/Firebase';
 import { useUserAuth } from "./Context/UserAuthContext";
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import ReactLoading from "react-loading";
 // import "./bootstrap/dist/css/bootstrap.min.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [load, setLoad] = useState(false)
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -19,10 +21,12 @@ const Login = () => {
     // try {
         console.log(email);
         console.log(password);
+        setLoad(true)
         signInWithEmailAndPassword(auth, email, password).then(()=> {
             console.log('here');
             onAuthStateChanged(auth, (currentuser) => {
                 // console.log(currentuser.uid);
+                setLoad(false)
                 navigate("/main/"+currentuser.uid);
             });
         })
@@ -35,8 +39,14 @@ const Login = () => {
   return (
       <div className="p-4 box" style={{width:'70%', margin:'10% auto'}}>
         <h2 className="mb-3">Login</h2>
+        <br />
         {error && <Alert variant="danger">{error}</Alert>}
-        <Form onSubmit={handleSubmit}>
+        { load ? 
+          <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}} >
+          <ReactLoading type="spinningBubbles" color='black' /> 
+          </div>
+        :
+          <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Control
               type="email"
@@ -59,6 +69,7 @@ const Login = () => {
             </Button>
           </div>
         </Form>
+        }
       </div>
   );
 };
