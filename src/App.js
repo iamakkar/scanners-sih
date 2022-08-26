@@ -11,6 +11,7 @@ import { faArrowUp, faArrowDown, faTrash, faMagicWandSparkles, faCamera, faCamer
 
 // import loadingGif from "./giphy.gif";
 import ReactLoading from "react-loading";
+import CryptoJS from 'crypto-js'
 
 // import uploadingGif from "./loading-icon-animated-gif-19.jpg";
 
@@ -40,6 +41,15 @@ const videoConstraints = {
 };
 
 function App(props) {
+
+  // useEffect(() => {
+  //   let imgBase64 = 'Amit Singh';
+  //   var ciphertext = CryptoJS.AES.encrypt(imgBase64, 'key').toString();
+  //   console.log(ciphertext);
+  //   var bytes  = CryptoJS.AES.decrypt(ciphertext, 'key');
+  //   var oriImg = bytes.toString(CryptoJS.enc.Utf8);
+  //   console.log(oriImg);
+  // })
 
   const {id}=useParams();
   console.log(id);
@@ -117,6 +127,30 @@ function App(props) {
       })
       )
     }
+
+    await imageName.forEach((e, idx) => {
+      if(e === '') {
+        let temp = imageName;
+        let n = idx + 1;
+        let c = digitCount(n);
+        let s = 'IMG_';
+        let t, x;
+        switch(c) {
+          case 1:
+            x = '00';
+            t = x.concat(n.toString());
+            break ;
+          case 2:
+            x = '0';
+            t = x.concat(n.toString());
+            break ;
+        }
+        let f = s.concat(t);
+        temp[idx] = f;
+        setLoading([...temp]);
+      }
+    })
+
     setUploadBool(true);
     let link = [];
     await Promise.all(imagearr.map(async (data, idx) => {
