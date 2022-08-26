@@ -14,9 +14,10 @@ import uploadingGif from "./loading-icon-animated-gif-19.jpg";
 
 import { storage, db } from './Config/Firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, setDoc, getDoc, doc } from 'firebase/firestore';
 import jsPDF from "jspdf";
 import SweetAlert from 'react-bootstrap-sweetalert';
+import { useParams } from "react-router";
 
 
 const WebcamComponent = () => <Webcam />;
@@ -30,11 +31,15 @@ const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
 const videoConstraints = {
   width: 2430,
   height: 4320,
-  facingMode: { exact: "environment" },
-  // facingMode: 'user',
+  // facingMode: { exact: "environment" },
+  facingMode: 'user',
 };
 
-function App() {
+function App(props) {
+
+  const {id}=useParams();
+  console.log(id);
+
   const [image, setImage] = useState('');
   const [fimage, setFimage] = useState([]);
   const [open, setOpen] = useState(false);
@@ -81,17 +86,33 @@ function App() {
 
       await uploadBytes(storageRef, blob);
       let url = await getDownloadURL(storageRef);
-      link.push(url);
+      link.push({url:url,name:imageName[idx]});
     }));
 
     setUpload(true);
     setUploadBool(false);
 
-    await addDoc(collection(db, 'Documents'), {
+    let gotDataDoc = await getDoc(doc(db, 'Documents', id));
+    let tempData={
       items: [...link],
       name: folderName,
       timestamp: Date.now()
-    });
+    }
+    if(gotDataDoc.exists()){
+      let gotData = gotDataDoc.data();
+      console.log(gotData.length);
+      await setDoc(doc(db, "Documents", id), {data : [...gotData.data, tempData]});
+    }else{
+      await setDoc(doc(db, "Documents", id), {data: [tempData]});
+    }
+
+    // await setDoc(doc(db, "Documents", id), [...gotData, tempData]);
+
+    // await addDoc(collection(db, 'Documents'), {
+    //   items: [...link],
+    //   name: folderName,
+    //   timestamp: Date.now()
+    // });
 
 
   }

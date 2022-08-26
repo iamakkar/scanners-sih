@@ -1,13 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+// import './index.css';
+import Mid from './mid';
 import reportWebVitals from './reportWebVitals';
+import { BrowserRouter } from "react-router-dom";
+// import '../node_modules/react-bootstrap/dist/'
+import "bootstrap/dist/css/bootstrap.min.css";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <BrowserRouter>
+    <Mid />
+  </BrowserRouter>,
   document.getElementById('root')
 );
 
