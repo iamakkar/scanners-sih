@@ -65,6 +65,15 @@ function App(props) {
 
   const webcamRef = React.useRef(null);
 
+  function digitCount(n) {
+    let ans = 0;
+    while(n) {
+      ans += 1;
+      n = Math.floor(n / 10);
+    }
+    return ans;
+  }
+
   const capture = React.useCallback(
     () => {
       const imageSrc = webcamRef.current.getScreenshot();
@@ -72,7 +81,24 @@ function App(props) {
       setImagearrOrig(img => [...img, imageSrc]);
       setRotateAngle(dat => [...dat, 0]);
       setLoading(cur => [...cur, false]);
-      setImageName(dat => [...dat, dat.length+1]);
+      setImageName(dat => {
+        let n = dat.length + 1;
+        let c = digitCount(n);
+        let s = 'IMG_';
+        let t, x;
+        switch(c) {
+          case 1:
+            x = '00';
+            t = x.concat(n.toString());
+            break ;
+          case 2:
+            x = '0';
+            t = x.concat(n.toString());
+            break ;
+        }
+        let f = s.concat(t);
+        return [...dat, f]
+    });
       // setImage(imageSrc);
       // sendImg(imageSrc);
     },
