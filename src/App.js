@@ -9,8 +9,10 @@ import Button from '@mui/material/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown, faTrash, faMagicWandSparkles, faCamera, faCameraRotate,faAngleUp, faAngleDown,  } from '@fortawesome/free-solid-svg-icons';
 
-import loadingGif from "./giphy.gif";
-import uploadingGif from "./loading-icon-animated-gif-19.jpg";
+// import loadingGif from "./giphy.gif";
+import ReactLoading from "react-loading";
+
+// import uploadingGif from "./loading-icon-animated-gif-19.jpg";
 
 import { storage, db } from './Config/Firebase';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -18,6 +20,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import jsPDF from "jspdf";
 import SweetAlert from 'react-bootstrap-sweetalert';
 
+const audio_src = './shutter.mp3'
 
 const WebcamComponent = () => <Webcam />;
 
@@ -28,13 +31,13 @@ const SERVER_URL = 'https://scanner-backend.herokuapp.com/index';
 const SERVER_URL2 = 'https://scanner-backend.herokuapp.com/filtered';
 
 const videoConstraints = {
-  width: 2430,
-  height: 4320,
-  facingMode: { exact: "environment" },
-  // facingMode: 'user',
+  width: 1920,
+  height: 1080,
+  // facingMode: { exact: "environment" },
+  facingMode: 'user',
 };
 
-function App() {
+function App({audio_src}) {
   const [image, setImage] = useState('');
   const [fimage, setFimage] = useState([]);
   const [open, setOpen] = useState(false);
@@ -90,8 +93,6 @@ function App() {
       name: folderName,
       timestamp: Date.now()
     });
-
-
   }
 
   async function sendImg(idx) {
@@ -304,7 +305,11 @@ function App() {
   );
 
   return (
-    <div className="App" style={{ alignItems: 'center' }}>
+    <div className="App" style={{ alignItems: 'center',
+      backgroundColor: '#ececec',
+      // backgroundColor: '#f8f8ff',
+      // height: '100vh',
+      }}>
       {blurIndex==-1?null:<SweetAlert
         title={"Retake the image"}
         type={'danger'}
@@ -322,9 +327,11 @@ function App() {
           className="webcam"
           screenshotQuality={1}
         />
-        <button className='b1' onClick={(e) => { e.preventDefault(); capture(); }} ><FontAwesomeIcon style={{ margin: '3px 20px', fontSize: '25px' }} icon={faCamera} /></button>
       </div>
-      <div style={{ display: 'flex', flexFlow: 'row wrap', justifyContent: 'center' }}>
+      <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}} >
+        <button className='b1' onClick={(e) => { e.preventDefault(); capture(); }} ><FontAwesomeIcon style={{ fontSize: '25px', margin: 0 }} icon={faCamera} /></button>
+      </div>
+      <div style={{ display: 'flex', flexFlow: 'row wrap', justifyContent: 'center'}}>
         {
           image !== '' ?
             <>
@@ -353,21 +360,24 @@ function App() {
             return (
               <div style={{
               // borderWidth: 5,
-              // padding: 20,
+              padding: '5%',
               // borderColor: 'black',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
               // border: '1px solid black',
-              borderRadius: '2%',
-              width: '90%',
+              borderRadius: '8%',
+              width: '85%',
               margin: '2%',
-              backgroundColor: 'whitesmoke'
+              backgroundColor: 'whitesmoke',
               }} >
                 {!loading[idx] ?
-                  <img src={data} style={{ width: '-webkit-fill-available', borderRadius: 'inherit', transform: `rotate(${rotateAngle[idx]}deg)`, margin: (rotateAngle[idx] / 90) % 2 == 1 ? '25% 0' : '0' }} alt="err" onClick={() => setIsPreview({ is: true, img: data })} /> :
-                  <img style={{ width: '-webkit-fill-available' }} src={loadingGif} />
+                  <img src={data} style={{ width: '-webkit-fill-available', transform: `rotate(${rotateAngle[idx]}deg)`, margin: (rotateAngle[idx] / 90) % 2 == 1 ? '25% 0' : '0' }} alt="err" onClick={() => setIsPreview({ is: true, img: data })} /> :
+                  // <img style={{ width: '-webkit-fill-available' }} src={loadingGif} />
+                  <div style={{padding: 30}} >
+                  <ReactLoading type='spin' color='black' />
+                  </div>
                 }
                 <p style={{ fontWeight: 'bold', margin: '10px 20px', fontSize: '20px' }} >{idx + 1}</p>
                 {/* <input onChange={(e) => {p = e.target.value}} ></input>
@@ -379,12 +389,12 @@ function App() {
                   <FontAwesomeIcon style={{ margin: '10px 10px', fontSize: '20px', cursor: 'pointer' }} icon={faCameraRotate} onClick={() => rotate(idx)} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <button className='b1' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 0)}>Original</button>
-                  <button className='b1' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 1)}>White Board</button>
-                  <button className='b1' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 2)}>Contrast</button>
-                  <button className='b1' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 3)}>Grayscale</button>
+                  <button className='b2' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 0)}>Original</button>
+                  <button className='b2' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 2)}>White Board</button>
+                  <button className='b2' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 2)}>Contrast</button>
+                  <button className='b2' style={{ padding: '6px', cursor: 'pointer' }} onClick={() => filterFunc(idx, 3)}>Grayscale</button>
                 </div>
-                <button className='b1' onClick={() => sendImg(idx)} >Send</button>
+                <button className='b3' onClick={() => sendImg(idx)} >Send</button>
               </div>
             )
           })
@@ -399,10 +409,20 @@ function App() {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '30%', margin: 'auto' }}>
         <input placeholder='Enter The Folder Name' style={{ fontSize: 'large', width: 'fit-content', margin: '10px', fontStyle: 'oblique' }} onChange={e => setFolderName(e.target.value)} ></input>
-        {!uploadBool ? <button className='b1' onClick={() => uploadImg()} >Upload</button> :
-          <img style={{ width: '85%' }} src={uploadingGif} />}
+        {!uploadBool ? <button className='b3' style={{padding: '6%'}} onClick={() => uploadImg()} >Upload</button> :
+          // <img style={{ width: '85%' }} src={uploadingGif} />
+          <div style={{padding: 30}} >
+          <ReactLoading type='bars' color='black' />
+          </div>
+        }
         {/* <button className='b1' style={{padding:'12px 20px'}} onClick={()=>uploadImg()} >Upload</button> */}
-        {upload ? <p style={{ fontSize: 'x-large', fontWeight: '600' }} >Uploaded Successfully!!</p> : null}
+        {upload ? <SweetAlert
+          title={"Successfully Uploaded!"}
+          type={'success'}
+          confirmBtnBsStyle={{backgroundColor:'black', border: 'none', boxShadow:'none', color:'white', textDecoration:'none', width:'10%'}}
+          onConfirm={() => {setUpload(!upload)}}
+          />
+        : null}
       </div>
       {/* <div>
         <button className='b1' onClick={()=>savePDF()}> Generate PDF </button>
