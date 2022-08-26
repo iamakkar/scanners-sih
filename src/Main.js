@@ -7,13 +7,14 @@ function Main(props){
     console.log(id);
     const navigate = useNavigate();
 
-    return(<div>
-        <div className="d-grid gap-2">
+    return(
+    <div style={{height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}} >
+        <div className="d-grid gap-2" style={{width: '100vw'}} >
             <Button variant="primary" style={{width:'70%', margin:'2% auto'}} onClick={() => navigate("/main/upload/"+id)}>
               Upload Document
             </Button>
         </div>
-        <div className="d-grid gap-2">
+        <div className="d-grid gap-2" style={{width: '100vw'}} >
             <Button variant="primary" style={{width:'70%', margin:'2% auto'}} onClick={() => navigate("/main/docs/"+id)}>
                 Documents
             </Button>
