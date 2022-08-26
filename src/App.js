@@ -484,9 +484,10 @@ function App(props) {
           action={action}
         />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto' }}>
-        <input placeholder='Enter The Folder Name' style={{ fontSize: 'large', width: 'fit-content', margin: '10px' }} onChange={e => setFolderName(e.target.value)} ></input>
-        {!uploadBool ? <button className='b3' style={{padding: '6%'}} onClick={() => uploadImg()} >Upload</button> :
+      { imagearr.length !== 0 &&
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: 'auto' }}>
+        <input className='txt-input' value={folderName} placeholder='Enter The Folder Name' style={{  width: '80%', margin: '10px' }} onChange={e => setFolderName(e.target.value)} ></input>
+        {!uploadBool ? <button className='b3' onClick={() => uploadImg()} >Upload</button> :
           // <img style={{ width: '85%' }} src={uploadingGif} />
           <div style={{padding: 30}} >
           <ReactLoading type='bars' color='black' />
@@ -500,7 +501,8 @@ function App(props) {
           onConfirm={() => {setUpload(!upload)}}
           />
         : null}
-      </div>
+        <br />
+      </div>}
       {/* <div>
         <button className='b1' onClick={()=>savePDF()}> Generate PDF </button>
       </div> */}
